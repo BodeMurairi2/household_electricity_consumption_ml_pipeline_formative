@@ -88,7 +88,3 @@ The interactive docs will be at http://127.0.0.1:8000/docs.
 - [ ] Data cleaning and loading into a database (`db/`, `scripts/`)
 - [ ] Feature engineering and model training
 - [ ] Prediction endpoints in the FastAPI service (`api/`)
-
-## Author
-
-Bode Murairi — [@BodeMurairi2](https://github.com/BodeMurairi2)
