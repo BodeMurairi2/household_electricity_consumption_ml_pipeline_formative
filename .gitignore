@@ -1,0 +1,9 @@
+.*env
+.*zip
+__pycache__
+*.pyc
+venv/
+.env/
+env/
+.ipynb_checkpoints/
+household_power_consumption.txt
