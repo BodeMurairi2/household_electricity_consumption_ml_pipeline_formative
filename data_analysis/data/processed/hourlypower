@@ -1,0 +1,3 @@
+# This file will be needed for task 2
+
+- Frequency: hourly, from `data/processed/hourly_power.csv` (index = `datetime`). About 378 hours are missing (long gaps were not filled); load them as NULL or skip them.
