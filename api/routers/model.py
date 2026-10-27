@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from fastapi.routing import APIRouter
+from api.schema.prediction_schema import Prediction
 
 router = APIRouter(
     prefix="/model",
@@ -8,7 +9,7 @@ router = APIRouter(
     )
 
 @router.post("/predict")
-async def forecast():
+async def forecast(predicion:Prediction):
     """
     Forecast household electricity consumption
     """
