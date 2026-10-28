@@ -10,4 +10,5 @@ pydantic[standard]==2.14.1
 uvicorn[standard]==0.54.0
 pymongo==4.19.0
 pymysql==1.2.3
-sqlalchemy==2.1.6
+sqlalchemy[asyncio]==2.1.6
+asyncmy==0.2.17

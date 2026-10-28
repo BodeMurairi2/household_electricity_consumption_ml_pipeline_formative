@@ -7,3 +7,4 @@ venv/
 env/
 .ipynb_checkpoints/
 household_power_consumption.txt
+push.sh
