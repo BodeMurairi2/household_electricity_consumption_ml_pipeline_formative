@@ -1,0 +1,46 @@
+erDiagram
+    households ||--o{ sub_meters : has
+    households ||--o{ power_readings : records
+    households ||--o{ hourly_power : aggregates
+    power_readings ||--o{ sub_meter_readings : splits_into
+    sub_meters ||--o{ sub_meter_readings : measures
+
+    households {
+        INT household_id PK
+        VARCHAR name
+        VARCHAR city
+        VARCHAR country
+        DATETIME data_start
+        DATETIME data_end
+    }
+    sub_meters {
+        INT sub_meter_id PK
+        INT household_id FK
+        VARCHAR name
+        VARCHAR appliances
+    }
+    power_readings {
+        INT reading_id PK
+        INT household_id FK
+        DATETIME measured_at
+        DECIMAL global_active_power
+        DECIMAL global_reactive_power
+        DECIMAL voltage
+        DECIMAL global_intensity
+    }
+    sub_meter_readings {
+        INT reading_id PK,FK
+        INT sub_meter_id PK,FK
+        DECIMAL energy_wh
+    }
+    hourly_power {
+        INT household_id PK,FK
+        DATETIME hour_start PK
+        DOUBLE global_active_power
+        DOUBLE global_reactive_power
+        DOUBLE voltage
+        DOUBLE global_intensity
+        DOUBLE sub_metering_1
+        DOUBLE sub_metering_2
+        DOUBLE sub_metering_3
+    }
