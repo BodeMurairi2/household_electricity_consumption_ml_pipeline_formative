@@ -9,4 +9,5 @@ fastapi[standard]==0.162.0
 pydantic[standard]==2.14.1
 uvicorn[standard]==0.54.0
 pymongo==4.19.0
+pymysql==1.2.3
 sqlalchemy==2.1.6
