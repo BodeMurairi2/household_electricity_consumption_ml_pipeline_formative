@@ -1,0 +1,127 @@
+{
+  "households": {
+    "_id": 1,
+    "name": "UCI household",
+    "location": {
+      "city": "Sceaux",
+      "country": "France"
+    },
+    "data_start": {
+      "$date": "2006-12-16T17:24:00Z"
+    },
+    "data_end": {
+      "$date": "2010-11-26T21:02:00Z"
+    },
+    "sub_meters": [
+      {
+        "sub_meter_id": 1,
+        "name": "kitchen",
+        "appliances": "dishwasher, oven, microwave"
+      },
+      {
+        "sub_meter_id": 2,
+        "name": "laundry",
+        "appliances": "washing machine, tumble dryer, refrigerator, light"
+      },
+      {
+        "sub_meter_id": 3,
+        "name": "water_heater_ac",
+        "appliances": "electric water heater, air conditioner"
+      }
+    ]
+  },
+  "daily_readings": {
+    "_id": "6ae133c71248636b0350b111",
+    "household_id": 1,
+    "date": {
+      "$date": "2007-01-01T00:00:00Z"
+    },
+    "summary": {
+      "minutes_recorded": 1440,
+      "minutes_missing": 0,
+      "total_kwh": 45.817,
+      "avg_voltage": 240.13,
+      "peak_power_kw": 3.558,
+      "peak_time": {
+        "$date": "2007-01-01T09:50:00Z"
+      },
+      "sub_metering_kwh": {
+        "kitchen": 0,
+        "laundry": 0.352,
+        "water_heater_ac": 5.88
+      }
+    },
+    "readings": [
+      {
+        "time": {
+          "$date": "2007-01-01T00:00:00Z"
+        },
+        "global_active_power": 2.58,
+        "global_reactive_power": 0.136,
+        "voltage": 241.97,
+        "global_intensity": 10.6,
+        "sub_metering_wh": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "time": {
+          "$date": "2007-01-01T00:01:00Z"
+        },
+        "global_active_power": 2.552,
+        "global_reactive_power": 0.1,
+        "voltage": 241.75,
+        "global_intensity": 10.4,
+        "sub_metering_wh": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "time": {
+          "$date": "2007-01-01T00:02:00Z"
+        },
+        "global_active_power": 2.55,
+        "global_reactive_power": 0.1,
+        "voltage": 241.64,
+        "global_intensity": 10.4,
+        "sub_metering_wh": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "time": {
+          "$date": "2007-01-01T00:03:00Z"
+        },
+        "global_active_power": 2.55,
+        "global_reactive_power": 0.1,
+        "voltage": 241.71,
+        "global_intensity": 10.4,
+        "sub_metering_wh": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "time": {
+          "$date": "2007-01-01T00:04:00Z"
+        },
+        "global_active_power": 2.554,
+        "global_reactive_power": 0.1,
+        "voltage": 241.98,
+        "global_intensity": 10.4,
+        "sub_metering_wh": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  }
+}

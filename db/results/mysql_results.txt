@@ -1,0 +1,128 @@
+--------------
+-- Q1: Daily energy consumption (kWh) for the first week of January 2007
+--------------
+
+--------------
+SELECT DATE(measured_at) AS day,
+       ROUND(SUM(global_active_power) / 60, 2) AS energy_kwh,
+       ROUND(AVG(voltage), 2) AS avg_voltage
+FROM power_readings
+WHERE measured_at >= '2007-01-01' AND measured_at < '2007-01-08'
+GROUP BY day
+ORDER BY day
+--------------
+
++------------+------------+-------------+
+| day        | energy_kwh | avg_voltage |
++------------+------------+-------------+
+| 2007-01-01 |      45.82 |      240.13 |
+| 2007-01-02 |      21.15 |      241.94 |
+| 2007-01-03 |      16.90 |      243.56 |
+| 2007-01-04 |      54.32 |      239.75 |
+| 2007-01-05 |      45.22 |      240.50 |
+| 2007-01-06 |      25.14 |      239.67 |
+| 2007-01-07 |      40.79 |      240.90 |
++------------+------------+-------------+
+--------------
+-- Q2: Average load by hour of day (from hourly_power)
+--------------
+
+--------------
+SELECT HOUR(hour_start) AS hour_of_day,
+       ROUND(AVG(global_active_power), 3) AS avg_active_power_kw
+FROM hourly_power
+GROUP BY hour_of_day
+ORDER BY hour_of_day
+--------------
+
++-------------+---------------------+
+| hour_of_day | avg_active_power_kw |
++-------------+---------------------+
+|           0 |                0.66 |
+|           1 |                0.54 |
+|           2 |               0.481 |
+|           3 |               0.446 |
+|           4 |               0.444 |
+|           5 |               0.454 |
+|           6 |               0.791 |
+|           7 |                 1.5 |
+|           8 |               1.459 |
+|           9 |                1.33 |
+|          10 |               1.261 |
+|          11 |               1.246 |
+|          12 |               1.207 |
+|          13 |               1.144 |
+|          14 |               1.083 |
+|          15 |               0.992 |
+|          16 |                0.95 |
+|          17 |               1.057 |
+|          18 |               1.327 |
+|          19 |               1.734 |
+|          20 |                 1.9 |
+|          21 |               1.876 |
+|          22 |               1.412 |
+|          23 |               0.902 |
++-------------+---------------------+
+--------------
+-- Q3: Sub-meter energy share per year
+--------------
+
+--------------
+SELECT YEAR(p.measured_at) AS year,
+       s.name AS sub_meter,
+       ROUND(SUM(r.energy_wh) / 1000, 1) AS energy_kwh,
+       ROUND(100 * SUM(r.energy_wh) / SUM(SUM(r.energy_wh)) OVER (PARTITION BY YEAR(p.measured_at)), 1) AS pct_of_year
+FROM sub_meter_readings r
+JOIN power_readings p ON p.reading_id = r.reading_id
+JOIN sub_meters s ON s.sub_meter_id = r.sub_meter_id
+GROUP BY year, s.sub_meter_id, s.name
+ORDER BY year, s.sub_meter_id
+--------------
+
++------+-----------------+------------+-------------+
+| year | sub_meter       | energy_kwh | pct_of_year |
++------+-----------------+------------+-------------+
+| 2006 | kitchen         |       27.5 |        11.5 |
+| 2006 | laundry         |       48.7 |        20.4 |
+| 2006 | water_heater_ac |      163.0 |        68.1 |
+| 2007 | kitchen         |      642.5 |        14.2 |
+| 2007 | laundry         |      854.4 |        18.9 |
+| 2007 | water_heater_ac |     3022.8 |        66.9 |
+| 2008 | kitchen         |      584.8 |        13.2 |
+| 2008 | laundry         |      661.9 |        15.0 |
+| 2008 | water_heater_ac |     3179.2 |        71.8 |
+| 2009 | kitchen         |      592.7 |        12.5 |
+| 2009 | laundry         |      592.1 |        12.5 |
+| 2009 | water_heater_ac |     3556.8 |        75.0 |
+| 2010 | kitchen         |      451.7 |        10.6 |
+| 2010 | laundry         |      503.9 |        11.8 |
+| 2010 | water_heater_ac |     3313.4 |        77.6 |
++------+-----------------+------------+-------------+
+--------------
+-- Q4: Days with the most missing readings
+--------------
+
+--------------
+SELECT DATE(measured_at) AS day,
+       SUM(global_active_power IS NULL) AS missing_minutes
+FROM power_readings
+GROUP BY day
+HAVING missing_minutes > 0
+ORDER BY missing_minutes DESC, day
+LIMIT 10
+--------------
+
++------------+-----------------+
+| day        | missing_minutes |
++------------+-----------------+
+| 2007-04-29 |            1440 |
+| 2009-06-14 |            1440 |
+| 2010-01-13 |            1440 |
+| 2010-08-18 |            1440 |
+| 2010-08-19 |            1440 |
+| 2010-08-20 |            1440 |
+| 2010-08-21 |            1440 |
+| 2010-09-26 |            1440 |
+| 2010-09-27 |            1440 |
+| 2007-04-28 |            1419 |
++------------+-----------------+

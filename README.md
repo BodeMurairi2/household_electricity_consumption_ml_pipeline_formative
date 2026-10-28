@@ -50,7 +50,7 @@ unzip /tmp/household_power_consumption.zip -d data_analysis/data/
 │   └── model/            # Trained model loading
 ├── data_analysis/        # Exploratory data analysis and notebooks
 │   └── data/             # Raw dataset (git-ignored)
-├── db/                   # Database setup and access
+├── db/                   # MySQL + MongoDB (Docker), schema, ERD, queries — see db/README.md
 ├── scripts/              # Helper scripts (data loading, training, etc.)
 ├── requirements.txt
 └── README.md
@@ -85,6 +85,6 @@ The interactive docs will be at http://127.0.0.1:8000/docs.
 ## Roadmap
 
 - [ ] Exploratory data analysis (`data_analysis/`)
-- [ ] Data cleaning and loading into a database (`db/`, `scripts/`)
+- [x] Data cleaning and loading into a database (`db/`, `scripts/`) — see [db/README.md](db/README.md)
 - [ ] Feature engineering and model training
 - [ ] Prediction endpoints in the FastAPI service (`api/`)
