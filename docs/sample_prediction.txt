@@ -1,0 +1,4 @@
+﻿Model:               Exp 4 - HistGradientBoosting
+Last observed hour:  2010-11-26 21:00:00  (0.9347 kW)
+Forecast for:        2010-11-26 22:00:00
+Predicted power:     1.0797 kW
