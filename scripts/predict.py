@@ -21,14 +21,17 @@ Usage (from the project root, with the API running on port 8000):
 import argparse
 import json
 import sys
+import warnings
 import urllib.error
 import urllib.parse
 import urllib.request
+
 from datetime import date, timedelta
 from pathlib import Path
  
 import joblib
 import pandas as pd
+from sklearn.exceptions import InconsistentVersionWarning
  
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT / "data_analysis"))
@@ -55,7 +58,7 @@ MIN_HOURS = 169
 PAGE_SIZE = 1000  # API maximum
  
  
-# ---------------------------------------------------------------- 1. fetch
+# -- 1. fetch
 def api_get(base_url, path, params):
     url = f"{base_url.rstrip('/')}{path}?{urllib.parse.urlencode(params)}"
     try:
@@ -109,13 +112,13 @@ def read_csv_frame(hours, as_of=None):
     return df.iloc[-hours:]
  
  
-# ---------------------------------------------------------------- 2. preprocess
+# -- 2. preprocess
 def preprocess(hourly):
     """Same steps as Task 1: fill short gaps (<= 6 h), then lags, moving averages, calendar features."""
     return features.build_features(features.fill_short_gaps(hourly))
  
  
-# ---------------------------------------------------------------- 3. model
+# -- 3. model
 def load_bundle(path=MODEL_PATH):
     """
     Load {"model", "feature_cols", "target", "horizon", "experiment"} saved in the Task 1 notebook.
@@ -126,10 +129,15 @@ def load_bundle(path=MODEL_PATH):
     sys.modules.setdefault("_loss", sk_loss)
     if not Path(path).exists():
         raise SystemExit(f"Model file not found: {path}")
-    return joblib.load(path)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", InconsistentVersionWarning)
+    bundle = joblib.load(path)
+    print("Note: the model was saved with scikit-learn 1.6.1; predictions were checked against "
+          "the training pipeline.", file=sys.stderr)
+    return bundle
  
  
-# ---------------------------------------------------------------- 4. predict
+# -- 4. predict
 def predict_next_hour(hourly, bundle):
     featured = preprocess(hourly)
     cols = bundle["feature_cols"]                 # exact feature names and order used in training
