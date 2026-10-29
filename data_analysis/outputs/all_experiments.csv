@@ -1,9 +1,0 @@
-Rank,Experiment,Model,Features,Hyperparameters,MAE,RMSE,R2,vs baseline (%)
-1,Exp 7,RandomForestRegressor,C: B + electrical measurements,"{'max_depth': 15, 'min_samples_leaf': 5, 'n_estimators': 200}",0.3215,0.4684,0.619,23.0287
-2,Exp 3,RandomForestRegressor,C: B + electrical measurements,"{'n_estimators': 100, 'max_depth': 12, 'min_samples_leaf': 2}",0.3216,0.4695,0.6172,22.8501
-3,Exp 4,RandomForestRegressor,C: B + electrical measurements,"{'n_estimators': 200, 'max_depth': 20, 'min_samples_leaf': 2}",0.3229,0.4701,0.6163,22.7579
-4,Exp 6,GradientBoostingRegressor,C: B + electrical measurements,"{'n_estimators': 300, 'learning_rate': 0.1, 'max_depth': 3}",0.3311,0.4706,0.6155,22.6744
-5,Exp 5,RandomForestRegressor,C: B + electrical measurements,"{'n_estimators': 100, 'max_depth': 8, 'min_samples_leaf': 5}",0.3341,0.48,0.5999,21.1261
-6,Exp 2,RandomForestRegressor,B: A + moving averages,"{'n_estimators': 100, 'max_depth': 12, 'min_samples_leaf': 2}",0.3329,0.4863,0.5894,20.0911
-7,Exp 1,RandomForestRegressor,A: current + lags + calendar,"{'n_estimators': 100, 'max_depth': 12, 'min_samples_leaf': 2}",0.3393,0.4901,0.5829,19.463
-8,Baseline,Persistence,current value only,{},0.3996,0.6085,0.3569,0.0
