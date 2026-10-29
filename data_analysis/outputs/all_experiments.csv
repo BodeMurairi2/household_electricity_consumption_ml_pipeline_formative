@@ -1,0 +1,8 @@
+Rank,Experiment,Model,Features,Hyperparameters,Val MAE,Val RMSE,Val R2,vs baseline (%)
+1,Exp 4 - HistGradientBoosting,HistGradientBoostingRegressor,C: B + electrical measurements,"{'max_iter': 200, 'learning_rate': 0.08, 'max_leaf_nodes': 31, 'l2_regularization': 1.0}",0.3487,0.5065,0.6771,26.7259
+2,Exp 3 - Random Forest Improved,RandomForestRegressor,C: B + electrical measurements,"{'n_estimators': 200, 'max_depth': 15, 'min_samples_leaf': 5}",0.3532,0.5161,0.6647,25.3371
+3,Exp 2 - Random Forest Standard,RandomForestRegressor,C: B + electrical measurements,"{'n_estimators': 100, 'max_depth': 12, 'min_samples_leaf': 2}",0.3536,0.519,0.661,24.9225
+4,Feature Ablation - Random Forest A,RandomForestRegressor,A: current + lags + calendar,"{'n_estimators': 100, 'max_depth': 12, 'min_samples_leaf': 2}",0.3718,0.5436,0.628,21.3555
+5,Exp 5 - TensorFlow Keras Neural Network,Keras Neural Network,C: B + electrical measurements,"{'layers': [64, 32, 1], 'activation': 'relu', 'optimizer': 'Adam', 'learning_rate': 0.001, 'batch_size': 64, 'max_epochs': 40, 'early_stopping_patience': 5}",0.3933,0.5798,0.5769,16.1275
+6,Exp 1 - Linear Regression,LinearRegression,C: B + electrical measurements,{'model': 'LinearRegression'},0.4477,0.6164,0.5217,10.8256
+7,Exp 0 - Persistence Baseline,Persistence,Current hour only,{},0.4632,0.6913,0.3985,0.0
