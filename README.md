@@ -88,3 +88,35 @@ The interactive docs will be at http://127.0.0.1:8000/docs.
 - [x] Data cleaning and loading into a database (`db/`, `scripts/`) — see [db/README.md](db/README.md)
 - [ ] Feature engineering and model training
 - [ ] Prediction endpoints in the FastAPI service (`api/`)
+
+## Prediction script (Task 4)
+
+`scripts/predict.py` ties the pipeline together. It:
+
+1. fetches the most recent hourly records from the API (`GET /sql_records/latest?info_type=hour`),
+2. preprocesses them with the same functions as Task 1 (`data_analysis/features.py`): short-gap interpolation, lag features (1, 24, 168 h), moving averages (24, 168 h) and calendar features,
+3. loads the trained model from `data_analysis/outputs/best_model.pkl` (HistGradientBoosting),
+4. predicts the average active power (kW) of the next hour.
+
+### Usage
+
+Run from the project root, with the API running on port 8000:
+
+```bash
+python -m scripts.predict                                   # latest data from the API
+python -m scripts.predict --api-url http://localhost:8000   # custom API address
+python -m scripts.predict --as-of 2010-06-15                # use history up to a past day (date-range endpoint)
+python -m scripts.predict --source csv                      # offline demo, no API needed
+python -m scripts.predict --json                            # machine-readable output
+```
+
+Example output:
+
+```
+Model:               Exp 4 - HistGradientBoosting
+Last observed hour:  2010-11-26 21:00:00  (0.9347 kW)
+Forecast for:        2010-11-26 22:00:00
+Predicted power:     1.0797 kW
+```
+
+At least 169 hours of history are needed because the model uses a 168-hour lag and moving average. The script fetches 336 hours by default.
