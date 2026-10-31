@@ -1,8 +1,8 @@
 # Household Electricity Consumption ML Pipeline
 
-An end-to-end machine learning pipeline built on minute-level household power data. It covers data analysis, database storage, model training and a FastAPI service that serves predictions.
+An end-to-end machine learning pipeline built on minute-level household power data. It covers data analysis, database storage, model training, a FastAPI service for managing and querying the data, and a script that forecasts the next hour's consumption.
 
-> **Status:** this repository is at the initial structure stage. The sections below describe the intended layout, and each module will be filled in as the work progresses.
+> **Status:** the data analysis, model training, MySQL and MongoDB databases, CRUD and time-series endpoints, and the prediction script are complete.
 
 ## Dataset
 
@@ -25,11 +25,16 @@ This project uses the [Individual Household Electric Power Consumption](https://
 
 ### Getting the data
 
-The raw file is about 127 MB, which is over GitHub's 100 MB file limit, so it is **not committed** to this repository. Download it and place it here:
+The raw file is about 127 MB, which is over GitHub's 100 MB file limit, so it is **not committed** to this repository.
+
+1. Download `household_power_consumption.txt` from the [project's Google Drive folder](https://drive.google.com/drive/folders/1QTI3-LTFrOd1RGcSzoouFyfdohbNIfoY?usp=drive_link).
+2. Put it at this exact path, keeping the same filename:
 
 ```
 data_analysis/data/household_power_consumption.txt
 ```
+
+Alternatively, download the same file from UCI:
 
 ```bash
 mkdir -p data_analysis/data
@@ -42,16 +47,24 @@ unzip /tmp/household_power_consumption.zip -d data_analysis/data/
 
 ```
 .
-├── api/                  # FastAPI application
-│   ├── main.py           # App entry point
-│   ├── router/           # Route definitions
-│   ├── schema/           # Pydantic request/response models
-│   ├── service/          # Business logic (prediction, data access)
-│   └── model/            # Trained model loading
-├── data_analysis/        # Exploratory data analysis and notebooks
-│   └── data/             # Raw dataset (git-ignored)
-├── db/                   # MySQL + MongoDB (Docker), schema, ERD, queries — see db/README.md
-├── scripts/              # Helper scripts (data loading, training, etc.)
+├── api/                     # FastAPI application
+│   ├── main.py              # App entry point
+│   ├── controllers.py       # Registers the routers
+│   ├── routers/             # Route definitions (MySQL, MongoDB)
+│   ├── schema/              # Pydantic request/response models
+│   ├── service/             # Database logic for MySQL and MongoDB
+│   ├── mysql_setup/         # MySQL connection and ORM models
+│   └── mongo_setup/         # MongoDB connection
+├── data_analysis/           # Exploratory data analysis and model training
+│   ├── task1_time_series_analysis.ipynb
+│   ├── features.py          # Shared preprocessing and feature engineering
+│   ├── data/                # Sample and processed data; raw dataset goes here (git-ignored)
+│   └── outputs/             # Experiment results and trained model
+├── db/                      # MySQL schema, MongoDB queries, ERD — see db/README.md
+├── scripts/                 # Data loaders and prediction script
+├── docker-compose.yml       # MySQL, MongoDB, data loader and API services
+├── Dockerfile               # Image for the API and data loader
+├── .dockerignore
 ├── requirements.txt
 └── README.md
 ```
@@ -71,23 +84,75 @@ pip install -r requirements.txt
 
 Then follow [Getting the data](#getting-the-data) to download the dataset.
 
-## Running the API
+## Running with Docker
 
-Once the API is implemented, start it from the project root:
+This starts MySQL, MongoDB and the API, and loads the dataset into both databases. You need Docker with Docker Compose. Ports `8000`, `3307` and `27017` must be free.
+
+1. Put the dataset in place by following [Getting the data](#getting-the-data). Do this first, because the file is copied into the image during the build and the data loader needs it.
+
+2. From the project root, build and start everything:
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+   The API starts only after the data has loaded, which takes several minutes. To follow the progress:
+
+   ```bash
+   docker logs -f power_loader
+   ```
+
+3. Open the interactive API docs at http://localhost:8000/docs.
+
+To stop the containers:
 
 ```bash
-pip install "uvicorn[standard]"
-uvicorn api.main:app --reload
+docker compose down      # keeps the data
+docker compose down -v   # also deletes the data
 ```
 
-The interactive docs will be at http://127.0.0.1:8000/docs.
+Every `docker compose up` runs the loader again, which wipes and reloads both databases. This also removes any records added through the API.
+
+## Running the API
+
+The API runs in Docker: follow [Running with Docker](#running-with-docker). Its database connections use the Docker service names `mysql` and `mongo`, so running `uvicorn` directly on your machine cannot reach the databases.
+
+The interactive docs are at http://localhost:8000/docs.
+
+The `api/` folder is mounted into the container, so saved changes in it reload automatically. After changing anything else, such as `requirements.txt` or `scripts/`, rebuild the image:
+
+```bash
+docker compose up -d --build --no-deps api
+```
+
+## API endpoints
+
+| Method | Route | Purpose | Database |
+| --- | --- | --- | --- |
+| GET | `/sql_records/` | List minute or hourly records, oldest first, paginated | MySQL |
+| GET | `/sql_records/latest` | List the most recent minute or hourly records, newest first, paginated | MySQL |
+| GET | `/sql_records/latest/date_range` | List minute or hourly records between two dates (both included), paginated | MySQL |
+| POST | `/sql_records/record/create` | Create a minute reading or an hourly record | MySQL |
+| PUT | `/sql_records/record/update/{record_id}` | Update the fields sent for one minute reading or hourly record | MySQL |
+| DELETE | `/sql_records/record/delete/{record_id}` | Delete one minute reading or hourly record | MySQL |
+| GET | `/mongo_db/` | List minute readings or daily summaries, oldest first, paginated | MongoDB |
+| GET | `/mongo_db/latest` | List the most recent minute readings or daily summaries, newest first, paginated | MongoDB |
+| GET | `/mongo_db/latest/date_range` | List minute readings or daily summaries between two dates (both included), paginated | MongoDB |
+| POST | `/mongo_db/record/create` | Add a minute reading to its day document | MongoDB |
+| PUT | `/mongo_db/record/update/{record_id}` | Update the fields sent for one minute reading | MongoDB |
+| DELETE | `/mongo_db/record/delete/{record_id}` | Delete one minute reading | MongoDB |
+
+- **Choosing the data level:** the MySQL routes take `info_type=minute` (default) or `info_type=hour`. The MongoDB `GET` routes take `info_type=minute` (default) or `info_type=day`.
+- **`record_id` in MySQL:** use the reading ID for minute data, or the hour start for hourly data, such as `2010-11-26T21:00:00`.
+- **`record_id` in MongoDB:** use the reading time, such as `2010-11-26T21:02:00`.
 
 ## Roadmap
 
-- [ ] Exploratory data analysis (`data_analysis/`)
+- [x] Exploratory data analysis (`data_analysis/`)
 - [x] Data cleaning and loading into a database (`db/`, `scripts/`) — see [db/README.md](db/README.md)
-- [ ] Feature engineering and model training
-- [ ] Prediction endpoints in the FastAPI service (`api/`)
+- [x] Feature engineering and model training (`data_analysis/`)
+- [x] CRUD and time-series endpoints for MySQL and MongoDB (`api/`)
+- [x] Prediction script that uses the API (`scripts/predict.py`)
 
 ## Prediction script (Task 4)
 
